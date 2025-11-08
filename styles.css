@@ -207,6 +207,94 @@ body {
   }
 }
 
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.modal.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.modal:not(.hidden) {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 8, 15, 0.8);
+  backdrop-filter: blur(6px);
+}
+
+.modal-content {
+  position: relative;
+  width: min(90vw, 640px);
+  background: linear-gradient(160deg, rgba(12, 10, 18, 0.95), rgba(26, 18, 32, 0.9));
+  border-radius: 28px;
+  padding: 2.4rem 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 35px 70px rgba(0, 0, 0, 0.6);
+}
+
+.modal-content::before,
+.modal-content::after {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 220, 180, 0.3);
+  pointer-events: none;
+}
+
+.modal-content::after {
+  inset: 22px;
+  border-color: rgba(255, 220, 180, 0.15);
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
+.close-btn:hover,
+.close-btn:focus-visible {
+  color: rgba(255, 215, 170, 0.9);
+}
+
+.modal h2 {
+  margin: 0 0 1.5rem;
+  text-align: center;
+  font-size: 1.7rem;
+  color: rgba(255, 215, 170, 0.9);
+}
+
+.modal-image-frame {
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.modal-image-frame img {
+  width: 100%;
+  display: block;
+}
+
 @media (max-width: 480px) {
   .calendar {
     min-height: 100vh;
