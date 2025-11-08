@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Digitaler Adventskalender</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="calendar-shell">
+      <div
+        class="calendar"
+        id="calendar"
+        role="region"
+        aria-label="Adventskalender mit 24 Türchen"
+      >
+        <div class="snowfall" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="door-layer" id="doorLayer" aria-live="polite"></div>
+      </div>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

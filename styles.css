@@ -1,0 +1,223 @@
+:root {
+  color-scheme: light;
+  --bg: radial-gradient(circle at top, #122031 0%, #060b15 45%, #02040a 100%);
+  --gold: #f9d37b;
+  --gold-deep: #c9903c;
+  --cream: #fef7ec;
+  --berry: #c5465a;
+  --shadow: 0 15px 35px rgba(5, 6, 16, 0.65);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--cream);
+  background-color: #02040a;
+}
+
+.calendar-shell {
+  width: 100vw;
+  height: 100vh;
+}
+
+.calendar {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  overflow: hidden;
+  background-image: url("Bilder/Hintergrund.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  isolation: isolate;
+}
+
+.calendar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      130deg,
+      rgba(3, 3, 5, 0.5),
+      rgba(8, 10, 22, 0.2) 40%,
+      rgba(6, 3, 1, 0.75)
+    ),
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.1), transparent 45%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.snowfall {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.snowfall span {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
+  animation: snow 10s linear infinite;
+}
+
+.snowfall span:nth-child(odd) {
+  width: 4px;
+  height: 4px;
+  animation-duration: 12s;
+  opacity: 0.7;
+}
+
+.snowfall span:nth-child(even) {
+  animation-duration: 9s;
+}
+
+.snowfall span:nth-child(1) {
+  left: 5%;
+  animation-delay: 0s;
+}
+.snowfall span:nth-child(2) {
+  left: 15%;
+  animation-delay: 2s;
+}
+.snowfall span:nth-child(3) {
+  left: 25%;
+  animation-delay: 4s;
+}
+.snowfall span:nth-child(4) {
+  left: 35%;
+  animation-delay: 1s;
+}
+.snowfall span:nth-child(5) {
+  left: 45%;
+  animation-delay: 3s;
+}
+.snowfall span:nth-child(6) {
+  left: 55%;
+  animation-delay: 5s;
+}
+.snowfall span:nth-child(7) {
+  left: 65%;
+  animation-delay: 1.5s;
+}
+.snowfall span:nth-child(8) {
+  left: 75%;
+  animation-delay: 2.5s;
+}
+.snowfall span:nth-child(9) {
+  left: 85%;
+  animation-delay: 0.5s;
+}
+.snowfall span:nth-child(10) {
+  left: 95%;
+  animation-delay: 4.5s;
+}
+.snowfall span:nth-child(11) {
+  left: 50%;
+  animation-delay: 6s;
+}
+.snowfall span:nth-child(12) {
+  left: 20%;
+  animation-delay: 7s;
+}
+
+.door-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+}
+
+.door-button {
+  position: absolute;
+  width: clamp(54px, 7vw, 92px);
+  aspect-ratio: 3 / 4;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(225, 205, 170, 0.95));
+  box-shadow: 0 12px 30px rgba(12, 9, 22, 0.7), inset 0 2px 8px rgba(255, 255, 255, 0.65);
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Playfair Display", serif;
+  font-size: clamp(0.75rem, 1vw, 0.9rem);
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: #fffef9;
+  cursor: pointer;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+  transition: transform 200ms ease, box-shadow 200ms ease, color 300ms ease;
+  backdrop-filter: blur(2px);
+}
+
+.door-button::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+}
+
+.door-button::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 215, 180, 0.5);
+  pointer-events: none;
+}
+
+.door-button:hover,
+.door-button:focus-visible {
+  transform: translate(-50%, -50%) rotate(-2deg) scale(1.05);
+  box-shadow: 0 20px 35px rgba(7, 5, 15, 0.85), 0 0 25px rgba(255, 213, 150, 0.7);
+  color: #ffe7a8;
+}
+
+.door-button:focus-visible {
+  outline: 3px solid rgba(255, 223, 180, 0.9);
+  outline-offset: 5px;
+}
+
+@keyframes snow {
+  0% {
+    transform: translateY(-10%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar {
+    min-height: 100vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition: none !important;
+  }
+}
