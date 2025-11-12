@@ -228,11 +228,89 @@ body {
   pointer-events: auto;
 }
 
+.game-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.game-modal.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.game-modal:not(.hidden) {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
 .modal-backdrop {
   position: absolute;
   inset: 0;
   background: rgba(5, 8, 15, 0.8);
   backdrop-filter: blur(6px);
+}
+
+.game-content {
+  position: relative;
+  width: min(98vw, 1380px);
+  background: linear-gradient(170deg, rgba(15, 12, 24, 0.95), rgba(25, 20, 34, 0.9));
+  border-radius: 30px;
+  padding: 2rem 2.5rem 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 40px 70px rgba(0, 0, 0, 0.65);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.game-content h2 {
+  margin: 0 0 0.5rem;
+  text-align: center;
+  color: rgba(255, 215, 170, 0.95);
+}
+
+.game-instructions {
+  text-align: center;
+  margin: 0 0 1.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+}
+
+#gameCanvas {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(10, 18, 32, 0.95), rgba(8, 12, 20, 0.95));
+  display: block;
+}
+
+.game-status {
+  margin: 1rem 0 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+}
+
+.game-start {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 0.85rem;
+  background: linear-gradient(120deg, #f1c27d, #f8e1aa);
+  color: #37200b;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.game-start:hover,
+.game-start:focus-visible {
+  filter: brightness(1.08);
 }
 
 .modal-content {

@@ -46,6 +46,23 @@
       </div>
     </div>
 
+    <div class="game-modal hidden" id="gameModal" role="dialog" aria-modal="true" aria-labelledby="gameTitle">
+      <div class="modal-backdrop" data-close></div>
+      <div class="game-content">
+        <button class="close-btn" id="closeGame" aria-label="Spiel schließen">×</button>
+        <h2 id="gameTitle">Springe über die Zäune!</h2>
+        <p class="game-instructions">
+          Drücke die Leertaste, um das Pferd über die Zäune zu springen. Nach 10 erfolgreichen Sprüngen öffnet sich das Türchen.
+        </p>
+        <canvas id="gameCanvas" width="1300" height="420" aria-label="Spring-Spiel"></canvas>
+        <div class="game-status">
+          <span id="gameProgress">Fortschritt: 0 / 10</span>
+          <span id="gameMessage">Bereit?</span>
+        </div>
+        <button class="game-start" id="startGame">Spiel starten</button>
+      </div>
+    </div>
+
     <script src="script.js"></script>
   </body>
 </html>
