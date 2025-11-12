@@ -382,7 +382,7 @@ body {
 .cleanup-player {
   left: 40px;
   top: calc(100% - 140px);
-  transition: left 500ms ease, top 500ms ease;
+  transition: left 2000ms ease, top 2000ms ease;
   z-index: 2;
 }
 

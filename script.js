@@ -510,7 +510,7 @@ function handleCleanupPoopClick(poop) {
     removeCleanupPoop(poop);
     cleanupState.playerMoving = false;
     cleanupPlayerElem.classList.remove("moving");
-  }, 600);
+  }, 1200);
 }
 
 function removeCleanupPoop(poop) {
