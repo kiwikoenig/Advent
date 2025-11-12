@@ -63,6 +63,34 @@
       </div>
     </div>
 
+    <div
+      class="cleanup-modal hidden"
+      id="cleanupModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cleanupTitle"
+    >
+      <div class="modal-backdrop" data-close></div>
+      <div class="cleanup-content">
+        <button class="close-btn" id="closeCleanup" aria-label="Spiel schließen">×</button>
+        <h2 id="cleanupTitle">Sammle alle Haufen ein</h2>
+        <p class="cleanup-instructions">
+          Klicke auf die 💩-Symbole, bevor mehr als drei gleichzeitig liegen bleiben. Halte 60 Sekunden durch,
+          ohne dass mehr als drei Haufen sichtbar sind.
+        </p>
+        <div class="cleanup-stage" id="cleanupStage" aria-live="polite">
+          <img src="Bilder/Spiel1.png" alt="Pferd" class="cleanup-horse" id="cleanupHorse" />
+          <img src="Bilder/Spieler.png" alt="Spieler" class="cleanup-player" id="cleanupPlayer" />
+        </div>
+        <div class="cleanup-stats">
+          <span id="cleanupTimer">Zeit: 60s</span>
+          <span id="cleanupCount">Haufen: 0 / 3</span>
+          <span id="cleanupStatus">Status: Bereit</span>
+        </div>
+        <button class="cleanup-start" id="startCleanupGame">Spiel starten</button>
+      </div>
+    </div>
+
     <script src="script.js"></script>
   </body>
 </html>
