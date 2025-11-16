@@ -378,8 +378,14 @@ const cleanupState = {
   horseDirY: -1,
   playerX: 40,
   playerY: cleanupStage.clientHeight - 140,
+  playerFacing: "right",
   playerMoving: false,
 };
+
+function applyCleanupPlayerFacing() {
+  cleanupPlayerElem.style.transform =
+    cleanupState.playerFacing === "left" ? "scaleX(-1)" : "scaleX(1)";
+}
 
 const CLEANUP_MAX_POOPS = 3;
 const CLEANUP_GAME_DURATION = 60;
@@ -411,9 +417,11 @@ function resetCleanupGame() {
   cleanupState.playerMoving = false;
   cleanupState.playerX = 40;
   cleanupState.playerY = cleanupStage.clientHeight - 140;
+  cleanupState.playerFacing = "right";
   cleanupPlayerElem.classList.remove("moving");
   cleanupPlayerElem.style.left = `${cleanupState.playerX}px`;
   cleanupPlayerElem.style.top = `${cleanupState.playerY}px`;
+  applyCleanupPlayerFacing();
   cleanupState.poops.forEach((poop) => poop.remove());
   cleanupState.poops.clear();
   cleanupStage.querySelectorAll(".cleanup-poop").forEach((node) => node.remove());
@@ -442,6 +450,7 @@ function alignCleanupStage() {
   cleanupState.playerY = Math.max(30, Math.min(height - (cleanupPlayerElem.offsetHeight || 100) - 20, cleanupState.playerY));
   cleanupPlayerElem.style.left = `${cleanupState.playerX}px`;
   cleanupPlayerElem.style.top = `${cleanupState.playerY}px`;
+  applyCleanupPlayerFacing();
 }
 
 function startCleanupGame() {
@@ -524,10 +533,14 @@ function handleCleanupPoopClick(poop) {
   const playerHeight = cleanupPlayerElem.offsetHeight || 100;
   const poopLeft = parseFloat(poop.style.left) || 0;
   const poopTop = parseFloat(poop.style.top) || stageHeight - 60;
-  cleanupState.playerX = Math.max(0, Math.min(stageWidth - playerWidth - 10, poopLeft - playerWidth / 2));
+  const currentX = cleanupState.playerX;
+  const targetX = Math.max(0, Math.min(stageWidth - playerWidth - 10, poopLeft - playerWidth / 2));
+  cleanupState.playerFacing = targetX < currentX ? 'left' : 'right';
+  cleanupState.playerX = targetX;
   cleanupState.playerY = Math.max(30, Math.min(stageHeight - playerHeight - 20, poopTop - 10));
   cleanupPlayerElem.style.left = `${cleanupState.playerX}px`;
   cleanupPlayerElem.style.top = `${cleanupState.playerY}px`;
+  applyCleanupPlayerFacing();
   setTimeout(() => {
     removeCleanupPoop(poop);
     cleanupState.playerMoving = false;
