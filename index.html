@@ -91,6 +91,32 @@
       </div>
     </div>
 
+    <div
+      class="gift-modal hidden"
+      id="giftModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="giftTitle"
+    >
+      <div class="modal-backdrop" data-close></div>
+      <div class="gift-content">
+        <button class="close-btn" id="closeGift" aria-label="Spiel schließen">×</button>
+        <h2 id="giftTitle">Fange die Geschenke!</h2>
+        <p class="gift-instructions">
+          Bewege den Schlitten (Pfeiltasten) und fange die herabfallenden Geschenke. Bringe den Stapel zum rechten Rand
+          und liefere sie ab. Nach 60 Sekunden brauchst du mindestens 30 abgegebene Geschenke.
+        </p>
+        <canvas id="giftCanvas" width="1100" height="420" aria-label="Geschenke-Spiel"></canvas>
+        <div class="gift-stats">
+          <span id="giftTimer">Zeit: 60s</span>
+          <span id="giftDelivered">Abgegeben: 0</span>
+          <span id="giftStack">Stapel: 0</span>
+          <span id="giftStatus">Status: Bereit</span>
+        </div>
+        <button class="gift-start" id="startGiftGame">Spiel starten</button>
+      </div>
+    </div>
+
     <script src="script.js"></script>
   </body>
 </html>

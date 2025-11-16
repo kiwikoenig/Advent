@@ -1,6 +1,7 @@
 const TOTAL_DOORS = 24;
 const JUMP_GAME_DOORS = new Set([1, 7, 13, 19]);
 const CLEANUP_GAME_DOORS = new Set([3, 9, 14, 20]);
+const GIFT_GAME_DOORS = new Set([6, 12, 18, 24]);
 
 const doorLayer = document.getElementById("doorLayer");
 const modal = document.getElementById("imageModal");
@@ -25,6 +26,15 @@ const cleanupStatusLabel = document.getElementById("cleanupStatus");
 const cleanupHorseElem = document.getElementById("cleanupHorse");
 const cleanupPlayerElem = document.getElementById("cleanupPlayer");
 
+const giftModal = document.getElementById("giftModal");
+const closeGiftButton = document.getElementById("closeGift");
+const startGiftButton = document.getElementById("startGiftGame");
+const giftCanvas = document.getElementById("giftCanvas");
+const giftTimerLabel = document.getElementById("giftTimer");
+const giftDeliveredLabel = document.getElementById("giftDelivered");
+const giftStackLabel = document.getElementById("giftStack");
+const giftStatusLabel = document.getElementById("giftStatus");
+
 if (
   !doorLayer ||
   !modal ||
@@ -45,7 +55,15 @@ if (
   !cleanupCountLabel ||
   !cleanupStatusLabel ||
   !cleanupHorseElem ||
-  !cleanupPlayerElem
+  !cleanupPlayerElem ||
+  !giftModal ||
+  !closeGiftButton ||
+  !startGiftButton ||
+  !giftCanvas ||
+  !giftTimerLabel ||
+  !giftDeliveredLabel ||
+  !giftStackLabel ||
+  !giftStatusLabel
 ) {
   throw new Error("Benötigte Adventskalender-Elemente wurden nicht gefunden.");
 }
@@ -53,6 +71,7 @@ if (
 const modalBackdrop = modal.querySelector(".modal-backdrop");
 const gameBackdrop = gameModal.querySelector(".modal-backdrop");
 const cleanupBackdrop = cleanupModal.querySelector(".modal-backdrop");
+const giftBackdrop = giftModal.querySelector(".modal-backdrop");
 
 // ---------------------------------------------------------------------------
 // Advent doors
@@ -96,6 +115,9 @@ function handleDoorSelection(day) {
   } else if (CLEANUP_GAME_DOORS.has(day)) {
     pendingCleanupDoor = day;
     openCleanupModal(day);
+  } else if (GIFT_GAME_DOORS.has(day)) {
+    giftState.pendingDoor = day;
+    openGiftModal(day);
   } else {
     openImageModal(day);
   }
@@ -610,5 +632,268 @@ window.addEventListener("keydown", (event) => {
 
 window.addEventListener("resize", alignCleanupStage);
 
-let pendingJumpDoor = null;
-let pendingCleanupDoor = null;
+// ---------------------------------------------------------------------------
+// Gift game helpers
+// ---------------------------------------------------------------------------
+
+function openGiftModal(day) {
+  resetGiftGame();
+  giftState.pendingDoor = day;
+  giftStatusLabel.textContent = `Status: Fange Geschenke für Türchen ${day.toString().padStart(2, "0")}`;
+  giftModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeGiftModal() {
+  stopGiftLoops();
+  giftModal.classList.add("hidden");
+  document.body.style.overflow = "";
+  resetGiftGame();
+  giftState.pendingDoor = null;
+}
+
+function resetGiftGame() {
+  stopGiftLoops();
+  giftState.active = false;
+  giftState.timeLeft = GIFT_DURATION;
+  giftState.delivered = 0;
+  giftState.gifts = [];
+  giftState.effects = [];
+  giftState.stack = [];
+  giftState.player.x = giftCanvas.width / 2 - giftState.player.width / 2;
+  giftState.player.y = giftCanvas.height - giftState.player.height - 20;
+  updateGiftLabels();
+  giftStatusLabel.textContent = "Status: Bereit";
+  startGiftButton.disabled = false;
+  startGiftButton.textContent = "Spiel starten";
+}
+
+function startGiftGame() {
+  if (giftState.active) return;
+  resetGiftGame();
+  giftState.active = true;
+  startGiftButton.disabled = true;
+  startGiftButton.textContent = "Läuft...";
+  giftStatusLabel.textContent = "Status: Fange und liefere!";
+  scheduleGiftSpawn();
+  giftState.timerInterval = setInterval(() => {
+    giftState.timeLeft -= 1;
+    updateGiftLabels();
+    if (giftState.timeLeft <= 0) {
+      handleGiftEnd();
+    }
+  }, 1000);
+  giftState.animationId = requestAnimationFrame(updateGiftGame);
+}
+
+function stopGiftLoops() {
+  giftState.active = false;
+  if (giftState.spawnTimeout) {
+    clearTimeout(giftState.spawnTimeout);
+    giftState.spawnTimeout = null;
+  }
+  if (giftState.timerInterval) {
+    clearInterval(giftState.timerInterval);
+    giftState.timerInterval = null;
+  }
+  if (giftState.animationId) {
+    cancelAnimationFrame(giftState.animationId);
+    giftState.animationId = null;
+  }
+}
+
+function scheduleGiftSpawn() {
+  const delay = GIFT_SPAWN_MIN + Math.random() * (GIFT_SPAWN_MAX - GIFT_SPAWN_MIN);
+  giftState.spawnTimeout = setTimeout(() => {
+    if (!giftState.active) return;
+    spawnGift();
+    scheduleGiftSpawn();
+  }, delay);
+}
+
+function spawnGift() {
+  const size = 26 + Math.random() * 8;
+  const x = Math.random() * (giftCanvas.width - size - 20) + 10;
+  giftState.gifts.push({ x, y: -40, size, vy: 0, caught: false, weight: 1 + Math.random() * 0.5 });
+}
+
+function updateGiftGame() {
+  giftState.animationId = requestAnimationFrame(updateGiftGame);
+  giftCtx.clearRect(0, 0, giftCanvas.width, giftCanvas.height);
+  if (giftBackgroundImg.complete && giftBackgroundImg.naturalWidth > 0) {
+    giftCtx.drawImage(giftBackgroundImg, 0, 0, giftCanvas.width, giftCanvas.height);
+  }
+
+  updateGiftPlayer();
+  updateGiftObjects();
+  drawGiftObjects();
+  updateGiftLabels();
+}
+
+function updateGiftPlayer() {
+  // Bewegung über Tastatur: wird in handleGiftKey gesetzt
+}
+
+function updateGiftObjects() {
+  const p = giftState.player;
+  // Spieler anwenden
+  p.x = Math.max(0, Math.min(giftCanvas.width - p.width, p.x + p.vx));
+
+  // Geschenke
+  for (const gift of giftState.gifts) {
+    if (!gift.caught) {
+      gift.vy += GIFT_GRAVITY * gift.weight;
+      gift.y += gift.vy;
+      if (
+        gift.y + gift.size >= p.y &&
+        gift.x + gift.size > p.x &&
+        gift.x < p.x + p.width
+      ) {
+        gift.caught = true;
+        gift.vy = 0;
+        gift.y = p.y - gift.size - giftState.stack.length * GIFT_STACK_OFFSET;
+        gift.x = p.x + p.width / 2 - gift.size / 2 + (Math.random() * 10 - 5);
+        giftState.stack.push(gift);
+      }
+      if (gift.y > giftCanvas.height) {
+        gift.dead = true;
+        giftState.effects.push({ x: gift.x, y: giftCanvas.height - 10, type: "smoke", life: 20 });
+      }
+    } else {
+      // Auf dem Stapel bleiben
+      const idx = giftState.stack.indexOf(gift);
+      gift.x = p.x + p.width / 2 - gift.size / 2 + (Math.random() * 6 - 3);
+      gift.y = p.y - gift.size - idx * GIFT_STACK_OFFSET;
+      // Instabilität
+      const dropChance = GIFT_STACK_DROP_CHANCE_BASE * (1 + idx * 0.6);
+      if (Math.random() < dropChance) {
+        gift.caught = false;
+        gift.vy = 0;
+        giftState.stack.splice(idx, 1);
+      }
+    }
+  }
+
+  // Abliefern am rechten Rand
+  if (p.x + p.width > giftCanvas.width - 40 && giftState.stack.length) {
+    giftState.effects.push({ x: giftCanvas.width - 30, y: p.y - 20, type: "stars", life: 25 });
+    giftState.delivered += giftState.stack.length;
+    giftState.stack.length = 0;
+  }
+
+  giftState.gifts = giftState.gifts.filter((g) => !g.dead && (g.caught || g.y <= giftCanvas.height + 40));
+  giftState.effects = giftState.effects.filter((e) => e.life-- > 0);
+}
+
+function drawGiftObjects() {
+  const p = giftState.player;
+  // Spieler
+  if (giftPlayerImg.complete && giftPlayerImg.naturalWidth > 0) {
+    giftCtx.drawImage(giftPlayerImg, p.x, p.y, p.width, p.height);
+  } else {
+    giftCtx.fillStyle = "rgba(120,180,255,0.7)";
+    giftCtx.fillRect(p.x, p.y, p.width, p.height);
+  }
+
+  // Geschenke
+  giftCtx.font = "32px serif";
+  for (const gift of giftState.gifts) {
+    giftCtx.fillText("🎁", gift.x, gift.y + gift.size);
+  }
+
+  // Effekte
+  for (const effect of giftState.effects) {
+    if (effect.type === "smoke") {
+      giftCtx.fillText("💨", effect.x, effect.y);
+    } else if (effect.type === "stars") {
+      giftCtx.fillText("✨", effect.x, effect.y);
+    }
+  }
+}
+
+function updateGiftLabels() {
+  giftTimerLabel.textContent = `Zeit: ${Math.max(0, giftState.timeLeft)}s`;
+  giftDeliveredLabel.textContent = `Abgegeben: ${giftState.delivered}`;
+  giftStackLabel.textContent = `Stapel: ${giftState.stack.length}`;
+}
+
+function handleGiftEnd() {
+  stopGiftLoops();
+  const won = giftState.delivered >= GIFT_TARGET;
+  giftStatusLabel.textContent = won
+    ? `Status: Geschafft (${giftState.delivered} abgegeben)`
+    : `Status: Nur ${giftState.delivered} geschafft`;
+  startGiftButton.disabled = false;
+  startGiftButton.textContent = "Erneut versuchen";
+  if (won) {
+    setTimeout(() => {
+      const door = giftState.pendingDoor;
+      giftState.pendingDoor = null;
+      closeGiftModal();
+      if (door) {
+        openImageModal(door);
+      }
+    }, 600);
+  }
+}
+
+function handleGiftKey(event) {
+  if (!giftState.active) return;
+  if (event.key === "ArrowLeft") {
+    giftState.player.vx = -GIFT_PLAYER_SPEED;
+  } else if (event.key === "ArrowRight") {
+    giftState.player.vx = GIFT_PLAYER_SPEED;
+  }
+}
+
+function handleGiftKeyUp(event) {
+  if (!giftState.active) return;
+  if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+    giftState.player.vx = 0;
+  }
+}
+
+startGiftButton.addEventListener("click", startGiftGame);
+closeGiftButton.addEventListener("click", closeGiftModal);
+
+giftModal.addEventListener("click", (event) => {
+  if (event.target.dataset.close !== undefined || event.target === giftModal || event.target === giftBackdrop) {
+    closeGiftModal();
+  }
+});
+
+window.addEventListener("keydown", handleGiftKey);
+window.addEventListener("keyup", handleGiftKeyUp);
+
+// ---------------------------------------------------------------------------
+// Gift game (doors 6,12,18,24)
+// ---------------------------------------------------------------------------
+
+const giftCtx = giftCanvas.getContext("2d");
+const giftBackgroundImg = new Image();
+giftBackgroundImg.src = "Bilder/Hintergrund3.png";
+const giftPlayerImg = new Image();
+giftPlayerImg.src = "Bilder/Spiel3.png";
+
+const GIFT_DURATION = 60;
+const GIFT_TARGET = 30;
+const GIFT_GRAVITY = 0.25;
+const GIFT_SPAWN_MIN = 500;
+const GIFT_SPAWN_MAX = 1200;
+const GIFT_STACK_OFFSET = 18;
+const GIFT_STACK_DROP_CHANCE_BASE = 0.02;
+const GIFT_PLAYER_SPEED = 6;
+
+const giftState = {
+  pendingDoor: null,
+  active: false,
+  timeLeft: GIFT_DURATION,
+  delivered: 0,
+  spawnTimeout: null,
+  timerInterval: null,
+  animationId: null,
+  gifts: [],
+  effects: [],
+  player: { x: giftCanvas.width / 2 - 60, y: giftCanvas.height - 120, width: 140, height: 100, vx: 0 },
+  stack: [],
+};

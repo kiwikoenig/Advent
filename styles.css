@@ -270,6 +270,27 @@ body {
   pointer-events: auto;
 }
 
+.gift-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 26;
+  pointer-events: none;
+}
+
+.gift-modal.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.gift-modal:not(.hidden) {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
 .modal-backdrop {
   position: absolute;
   inset: 0;
@@ -432,6 +453,58 @@ body {
 
 .cleanup-start:hover,
 .cleanup-start:focus-visible {
+  filter: brightness(1.08);
+}
+
+.gift-content {
+  position: relative;
+  width: min(98vw, 1200px);
+  background: linear-gradient(170deg, rgba(14, 12, 22, 0.96), rgba(22, 18, 30, 0.92));
+  border-radius: 28px;
+  padding: 2rem 2.5rem 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 35px 70px rgba(0, 0, 0, 0.6);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.gift-instructions {
+  text-align: center;
+  margin: 0 0 1.2rem;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+#giftCanvas {
+  width: 100%;
+  height: auto;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 9, 16, 0.95);
+  display: block;
+}
+
+.gift-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.6rem;
+  margin: 1rem 0 1rem;
+  font-size: 0.95rem;
+}
+
+.gift-start {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 0.9rem;
+  background: linear-gradient(120deg, #ffd27f, #fff2c4);
+  color: #3b2206;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.gift-start:hover,
+.gift-start:focus-visible {
   filter: brightness(1.08);
 }
 
