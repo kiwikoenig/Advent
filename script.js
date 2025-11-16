@@ -712,7 +712,7 @@ function scheduleGiftSpawn() {
 }
 
 function spawnGift() {
-  const size = 26 + Math.random() * 8;
+  const size = 32 + Math.random() * 10;
   const x = Math.random() * (giftCanvas.width - size - 20) + 10;
   giftState.gifts.push({ x, y: -40, size, vy: 0, caught: false, weight: 1 + Math.random() * 0.5 });
 }
@@ -731,7 +731,13 @@ function updateGiftGame() {
 }
 
 function updateGiftPlayer() {
-  // Bewegung über Tastatur: wird in handleGiftKey gesetzt
+  // Richtung des Spielers anhand der Geschwindigkeit drehen
+  const p = giftState.player;
+  if (p.vx < 0) {
+    p.facing = 'left';
+  } else if (p.vx > 0) {
+    p.facing = 'right';
+  }
 }
 
 function updateGiftObjects() {
@@ -774,14 +780,17 @@ function updateGiftObjects() {
     }
   }
 
-  // Abliefern am rechten Rand
+  // Abliefern am rechten Rand – nur gefangene Geschenke zählen und verschwinden lassen
   if (p.x + p.width > giftCanvas.width - 40 && giftState.stack.length) {
     giftState.effects.push({ x: giftCanvas.width - 30, y: p.y - 20, type: "stars", life: 25 });
     giftState.delivered += giftState.stack.length;
+    // Entferne abgegebene Geschenke endgültig
+    giftState.gifts = giftState.gifts.filter((g) => !g.caught);
     giftState.stack.length = 0;
+  } else {
+    // Entferne nur verlorene/nach unten gefallene Geschenke; gefangene bleiben im Stack
+    giftState.gifts = giftState.gifts.filter((g) => !g.dead && (g.caught || g.y <= giftCanvas.height + 40));
   }
-
-  giftState.gifts = giftState.gifts.filter((g) => !g.dead && (g.caught || g.y <= giftCanvas.height + 40));
   giftState.effects = giftState.effects.filter((e) => e.life-- > 0);
 }
 
@@ -789,7 +798,15 @@ function drawGiftObjects() {
   const p = giftState.player;
   // Spieler
   if (giftPlayerImg.complete && giftPlayerImg.naturalWidth > 0) {
-    giftCtx.drawImage(giftPlayerImg, p.x, p.y, p.width, p.height);
+    giftCtx.save();
+    if (p.facing === 'left') {
+      giftCtx.translate(p.x + p.width, p.y);
+      giftCtx.scale(-1, 1);
+      giftCtx.drawImage(giftPlayerImg, 0, 0, p.width, p.height);
+    } else {
+      giftCtx.drawImage(giftPlayerImg, p.x, p.y, p.width, p.height);
+    }
+    giftCtx.restore();
   } else {
     giftCtx.fillStyle = "rgba(120,180,255,0.7)";
     giftCtx.fillRect(p.x, p.y, p.width, p.height);
@@ -876,12 +893,12 @@ const giftPlayerImg = new Image();
 giftPlayerImg.src = "Bilder/Spiel3.png";
 
 const GIFT_DURATION = 60;
-const GIFT_TARGET = 30;
+const GIFT_TARGET = 20;
 const GIFT_GRAVITY = 0.25;
 const GIFT_SPAWN_MIN = 500;
 const GIFT_SPAWN_MAX = 1200;
-const GIFT_STACK_OFFSET = 18;
-const GIFT_STACK_DROP_CHANCE_BASE = 0.02;
+const GIFT_STACK_OFFSET = 22;
+const GIFT_STACK_DROP_CHANCE_BASE = 0.01;
 const GIFT_PLAYER_SPEED = 6;
 
 const giftState = {
@@ -894,6 +911,6 @@ const giftState = {
   animationId: null,
   gifts: [],
   effects: [],
-  player: { x: giftCanvas.width / 2 - 60, y: giftCanvas.height - 120, width: 140, height: 100, vx: 0 },
+  player: { x: giftCanvas.width / 2 - 60, y: giftCanvas.height - 120, width: 140, height: 100, vx: 0, facing: 'right' },
   stack: [],
 };
