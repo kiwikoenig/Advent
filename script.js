@@ -175,7 +175,7 @@ const jumpState = {
   cleared: 0,
   animationId: null,
   active: false,
-  horse: { x: gameCanvas.width - 350, y: 0, width: 200, height: 140, velocity: 0 },
+  horse: { x: gameCanvas.width - 320, y: 0, width: 200, height: 140, velocity: 0 },
 };
 
 const JUMP_GRAVITY = 0.48;
@@ -200,12 +200,12 @@ function closeJumpGameModal() {
 }
 
 function resetJumpGame() {
-  jumpState.horse.x = gameCanvas.width - 350;
+  jumpState.backgroundOffset = 0;
+  jumpState.horse.x = gameCanvas.width - 320;
   jumpState.horse.y = jumpState.groundLevel - jumpState.horse.height;
   jumpState.horse.velocity = 0;
   jumpState.obstacles = [];
   jumpState.cleared = 0;
-  jumpState.backgroundOffset = 0;
   updateJumpProgress();
   gameMessage.textContent = "Bereit?";
   startGameButton.disabled = false;
@@ -254,8 +254,15 @@ function stopJumpLoop() {
 function updateJumpGame() {
   jumpState.animationId = requestAnimationFrame(updateJumpGame);
   jumpCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+  // Parallax: zoom und langsamer scrollender Hintergrund
+  jumpState.backgroundOffset -= JUMP_SPEED * 0.35;
+  const bgWidth = gameCanvas.width * 1.2;
+  const bgHeight = gameCanvas.height * 1.2;
+  const bgY = -(bgHeight - gameCanvas.height) / 2;
   if (jumpBackgroundImage.complete && jumpBackgroundImage.naturalWidth > 0) {
-    jumpCtx.drawImage(jumpBackgroundImage, 0, 0, gameCanvas.width, gameCanvas.height);
+    const offsetWrapped = ((jumpState.backgroundOffset % bgWidth) + bgWidth) % bgWidth;
+    jumpCtx.drawImage(jumpBackgroundImage, -offsetWrapped, bgY, bgWidth, bgHeight);
+    jumpCtx.drawImage(jumpBackgroundImage, -offsetWrapped + bgWidth, bgY, bgWidth, bgHeight);
   }
 
   jumpCtx.fillStyle = "rgba(255,255,255,0.08)";
