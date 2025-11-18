@@ -34,6 +34,9 @@ const giftTimerLabel = document.getElementById("giftTimer");
 const giftDeliveredLabel = document.getElementById("giftDelivered");
 const giftStackLabel = document.getElementById("giftStack");
 const giftStatusLabel = document.getElementById("giftStatus");
+const jumpTouchBtn = document.getElementById("jumpTouch");
+const giftLeftBtn = document.getElementById("giftLeft");
+const giftRightBtn = document.getElementById("giftRight");
 
 if (
   !doorLayer ||
@@ -63,7 +66,10 @@ if (
   !giftTimerLabel ||
   !giftDeliveredLabel ||
   !giftStackLabel ||
-  !giftStatusLabel
+  !giftStatusLabel ||
+  !jumpTouchBtn ||
+  !giftLeftBtn ||
+  !giftRightBtn
 ) {
   throw new Error("Benötigte Adventskalender-Elemente wurden nicht gefunden.");
 }
@@ -349,6 +355,15 @@ function handleJumpKey(event) {
     horse.velocity = JUMP_FORCE;
   }
 }
+
+// Touch fallback für Sprungspiel
+jumpTouchBtn.addEventListener("click", () => {
+  if (!jumpState.active) return;
+  const { horse } = jumpState;
+  if (horse.y >= jumpState.groundLevel - horse.height) {
+    horse.velocity = JUMP_FORCE;
+  }
+});
 
 startGameButton.addEventListener("click", startJumpGame);
 window.addEventListener("keydown", handleJumpKey);
@@ -751,13 +766,17 @@ function updateGiftGame() {
 }
 
 function updateGiftPlayer() {
-  // Richtung des Spielers anhand der Geschwindigkeit drehen
   const p = giftState.player;
+  // Steuerung aus Tastatur/Touch
+  p.vx = giftMoveDir * GIFT_PLAYER_SPEED;
+
+  // Richtung des Spielers anhand der Geschwindigkeit drehen
   if (p.vx < 0) {
     p.facing = 'left';
   } else if (p.vx > 0) {
     p.facing = 'right';
   }
+  p.x = Math.max(0, Math.min(giftCanvas.width - p.width, p.x + p.vx));
 }
 
 function updateGiftObjects() {
@@ -877,16 +896,16 @@ function handleGiftEnd() {
 function handleGiftKey(event) {
   if (!giftState.active) return;
   if (event.key === "ArrowLeft") {
-    giftState.player.vx = -GIFT_PLAYER_SPEED;
+    giftMoveDir = -1;
   } else if (event.key === "ArrowRight") {
-    giftState.player.vx = GIFT_PLAYER_SPEED;
+    giftMoveDir = 1;
   }
 }
 
 function handleGiftKeyUp(event) {
   if (!giftState.active) return;
   if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-    giftState.player.vx = 0;
+    giftMoveDir = 0;
   }
 }
 
@@ -901,6 +920,44 @@ giftModal.addEventListener("click", (event) => {
 
 window.addEventListener("keydown", handleGiftKey);
 window.addEventListener("keyup", handleGiftKeyUp);
+
+// Touch-Steuerung für Geschenkspiel
+function setGiftDir(dir) {
+  if (!giftState.active) return;
+  giftMoveDir = dir;
+}
+
+const touchOpts = { passive: false };
+
+["pointerdown", "touchstart", "mousedown", "click"].forEach((ev) => {
+  giftLeftBtn.addEventListener(
+    ev,
+    (e) => {
+      e.preventDefault();
+      setGiftDir(-1);
+    },
+    touchOpts,
+  );
+  giftRightBtn.addEventListener(
+    ev,
+    (e) => {
+      e.preventDefault();
+      setGiftDir(1);
+    },
+    touchOpts,
+  );
+});
+
+["pointerup", "pointercancel", "touchend", "touchcancel", "mouseup", "mouseleave", "mouseout"].forEach((ev) => {
+  window.addEventListener(
+    ev,
+    () => {
+      if (!giftState.active) return;
+      giftMoveDir = 0;
+    },
+    touchOpts,
+  );
+});
 
 // ---------------------------------------------------------------------------
 // Gift game (doors 6,12,18,24)
@@ -920,6 +977,7 @@ const GIFT_SPAWN_MAX = 1200;
 const GIFT_STACK_OFFSET = 22;
 const GIFT_STACK_DROP_CHANCE_BASE = 0.01;
 const GIFT_PLAYER_SPEED = 6;
+let giftMoveDir = 0;
 
 const giftState = {
   pendingDoor: null,

@@ -20,6 +20,7 @@ body {
   font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   color: var(--cream);
   background-color: #02040a;
+  padding: 0;
 }
 
 .calendar-shell {
@@ -489,6 +490,30 @@ body {
   gap: 0.6rem;
   margin: 1rem 0 1rem;
   font-size: 0.95rem;
+}
+
+.game-touch-controls,
+.gift-controls {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  margin: 0.8rem 0 0.4rem;
+}
+
+.touch-btn {
+  flex: 1;
+  border: none;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+.touch-btn:active {
+  transform: scale(0.98);
 }
 
 .gift-start {
