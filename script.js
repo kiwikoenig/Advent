@@ -414,6 +414,13 @@ const CLEANUP_GAME_DURATION = 60;
 const CLEANUP_HORSE_SPEED = 2.3;
 const CLEANUP_HORSE_VERTICAL_SPEED = 1.2;
 
+function clearCleanupPoops() {
+  cleanupState.poops.forEach((poop) => poop.remove());
+  cleanupState.poops.clear();
+  cleanupStage.querySelectorAll(".cleanup-poop").forEach((node) => node.remove());
+  updateCleanupCount();
+}
+
 function openCleanupModal(day) {
   resetCleanupGame();
   cleanupState.pendingDoor = day;
@@ -444,9 +451,7 @@ function resetCleanupGame() {
   cleanupPlayerElem.style.left = `${cleanupState.playerX}px`;
   cleanupPlayerElem.style.top = `${cleanupState.playerY}px`;
   applyCleanupPlayerFacing();
-  cleanupState.poops.forEach((poop) => poop.remove());
-  cleanupState.poops.clear();
-  cleanupStage.querySelectorAll(".cleanup-poop").forEach((node) => node.remove());
+  clearCleanupPoops();
   cleanupState.horseX = cleanupStage.clientWidth - (cleanupHorseElem.offsetWidth || 140) - 40;
   cleanupState.horseY = Math.max(40, cleanupStage.clientHeight / 2 - (cleanupHorseElem.offsetHeight || 90) / 2);
   cleanupState.horseDirX = -1;
@@ -606,6 +611,9 @@ function handleCleanupFail(message) {
   cleanupState.failed = true;
   stopCleanupLoops();
   cleanupStatusLabel.textContent = `Status: ${message}`;
+  clearCleanupPoops();
+  cleanupState.playerMoving = false;
+  cleanupPlayerElem.classList.remove("moving");
   startCleanupButton.disabled = false;
   startCleanupButton.textContent = "Erneut versuchen";
 }
